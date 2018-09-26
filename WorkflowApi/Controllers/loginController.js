@@ -10,7 +10,7 @@ exports.validateLogin = function (req, res) {
             res.status(errorCodes.BAD_REQUEST.Value);
             res.json({
                 "status": errorCodes.BAD_REQUEST.Text,
-                "message": "",
+                "message": "Username and Password required",
                 "data": null
             });
         }

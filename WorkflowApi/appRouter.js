@@ -21,6 +21,7 @@ router.put('/users/', userController.updateUser);
 router.delete('/users', userController.deleteUser);
 router.patch('/users', userController.blockUser);
 router.get('/users', userController.getUsers);
-// Export Router //
 
+
+// Export Router //
 module.exports = router;

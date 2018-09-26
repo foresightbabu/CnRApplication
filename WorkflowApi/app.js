@@ -4,19 +4,13 @@ var config = require('./appConfig');
 var router = require('./appRouter');
 var bodyParser = require('body-parser');
 var errors = require('./Common/errorCodes');
+var cors = require('cors');
 
 app.locals.errors = errors;
 
-app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-});
-
-
+app.use(cors());
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
-
 
 require('events').EventEmitter.defaultMaxListeners = 100;
 

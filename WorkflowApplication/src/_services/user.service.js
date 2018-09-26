@@ -11,20 +11,25 @@ export const userService = {
 };
 
 function login(username, password) {
-    const requestOptions = {
-        method: 'POST',
+
+    let requestOptions = {
+        method: 'post',
+        body: JSON.stringify({ Username: username, Password: password }),
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ Username: username, Password: password })
+        crossDomain: true
     };
-    return fetch(`${apiUrl}/users/authenticate`, requestOptions)
+    console.log(JSON.stringify({ Username: username, Password: password }));
+
+    return fetch(`http://localhost:3000/users/authenticate`, requestOptions)
         .then(handleResponse)
-        .then(user => {
-        
-            // login successful if there's a jwt token in the response
-            if (user.token) {
+        .then(response => {
+            let user = response.data;
+            // // login successful if there's a jwt token in the response
+            if (user.Id) {
                 // store user details and jwt token in local storage to keep user logged in between page refreshes
                 localStorage.setItem('user', JSON.stringify(user));
             }
+            console.log(user, "final response");
             return user;
         });
 }
@@ -81,16 +86,15 @@ function _delete(id) {
 }
 
 function handleResponse(response) {
-  
+
     return response.text().then(text => {
         const data = text && JSON.parse(text);
         if (!response.ok) {
             if (response.status === 401) {
                 // auto logout if 401 response returned from api
                 logout();
-                location.reload(true);
+                //location.reload(true);
             }
-
             const error = (data && data.message) || response.statusText;
             return Promise.reject(error);
         }
