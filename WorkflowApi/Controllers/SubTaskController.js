@@ -3,7 +3,7 @@ var sql = require("mssql");
 var errors = require('../Common/errorCodes');
 
 // Insert User
-exports.saveUser = function (req, res) {
+exports.saveSubTaskMaster = function (req, res) {
     errorCodes = errors.errorCodes
     var postData = req.body;
     try {
@@ -26,16 +26,12 @@ exports.saveUser = function (req, res) {
                     rolledBack = true
                 });
                 const request = new sql.Request(transaction);
-                request.input('Name', sql.NVarChar, postData.Name)
-                    .input('ClientId', sql.BigInt, postData.ClientId)
-                    .input('Username', sql.NVarChar, postData.Username)
-                    .input('Password', sql.NVarChar, postData.Password)
-                    .input('PasswordSalt', sql.NVarChar, postData.PasswordSalt)
-                    .input('UserType', sql.Int, postData.UserType)
-                    .input('EmailId', sql.NVarChar, postData.EmailId)
+                request.input('ServiceId', sql.BigInt, postData.ServiceId)
+                    .input('TaskName', sql.NVarChar, postData.TaskName)
+                    .input('Description', sql.NVarChar, postData.Description)
                     .input('CreatedBy', sql.BigInt, postData.CreatedBy)
-                    .output('UserId', sql.BigInt)
-                    .execute('[dbo].[Proc_UsersInsert]', (nerr, recordsets, returnValue) => {
+                    .output('SubTaskId', sql.BigInt)
+                    .execute('[dbo].[Proc_ServicesSubTaskMasterInsert]', (nerr, recordsets, returnValue) => {
                         if (nerr) {
                             transaction.rollback(err => {
                                 sql.close();
@@ -67,7 +63,7 @@ exports.saveUser = function (req, res) {
                                     res.json({
                                         "status": errorCodes.SUCCESS.Text,
                                         "message": "",
-                                        "data": { UserId: recordsets ? recordsets['output']['UserId'] : null }
+                                        "data": { SubTaskId: recordsets ? recordsets['output']['SubTaskId'] : null }
                                     });
                                 }
                             });
@@ -105,7 +101,7 @@ exports.saveUser = function (req, res) {
 }
 
 // Update User
-exports.updateUser = function (req, res) {
+exports.updateSubTaskMaster = function (req, res) {
     errorCodes = errors.errorCodes
     var postData = req.body;
     try {
@@ -118,11 +114,11 @@ exports.updateUser = function (req, res) {
                 "data": null
             });
         }
-        else if (postData != undefined && postData['UserId'] == undefined) {
+        else if (postData != undefined && postData['SubTaskId'] == undefined) {
             res.status(errorCodes.BAD_REQUEST.Value);
             res.json({
                 "status": errorCodes.BAD_REQUEST.Text,
-                "message": "UserId required",
+                "message": "SubTaskId required",
                 "data": null
             });
         }
@@ -136,16 +132,12 @@ exports.updateUser = function (req, res) {
                         rolledBack = true
                     });
                     const request = new sql.Request(transaction);
-                    request.input('UserId', sql.BigInt, postData.UserId)
-                        .input('Name', sql.NVarChar, postData.Name)
-                        .input('ClientId', sql.BigInt, postData.ClientId)
-                        .input('Username', sql.NVarChar, postData.Username)
-                        .input('Password', sql.NVarChar, postData.Password)
-                        .input('PasswordSalt', sql.NVarChar, postData.PasswordSalt)
-                        .input('UserType', sql.Int, postData.UserType)
-                        .input('EmailId', sql.NVarChar, postData.EmailId)
-                        .input('ModifyBy', sql.BigInt, postData.ModifyBy)
-                        .execute('[dbo].[Proc_UsersUpdate]', (nerr, recordsets, returnValue) => {
+                    request.input('SubTaskId', sql.BigInt, postData.SubTaskId)
+                        .input('ServiceId', sql.BigInt, postData.ServiceId)
+                        .input('TaskName', sql.NVarChar, postData.TaskName)
+                        .input('Description', sql.NVarChar, postData.Description)
+                        .input('ModifiedBy', sql.BigInt, postData.ModifiedBy)
+                        .execute('[dbo].[Proc_ServicesSubTaskMasterUpdate]', (nerr, recordsets, returnValue) => {
                             if (nerr) {
                                 transaction.rollback(err => {
                                     sql.close();
@@ -176,7 +168,7 @@ exports.updateUser = function (req, res) {
                                         res.status(errorCodes.SUCCESS.Value);
                                         res.json({
                                             "status": errorCodes.SUCCESS.Text,
-                                            "message": "User updated successfully",
+                                            "message": "Subtask updated successfully",
                                             "data": null
                                         });
                                     }
@@ -216,7 +208,7 @@ exports.updateUser = function (req, res) {
 }
 
 //Delete User
-exports.deleteUser = function (req, res) {
+exports.deleteSubTaskMaster = function (req, res) {
     errorCodes = errors.errorCodes
     var postData = req.body;
     try {
@@ -229,16 +221,15 @@ exports.deleteUser = function (req, res) {
                 "data": null
             });
         }
-        else if (postData != undefined && postData['UserId'] == undefined) {
+        else if (postData != undefined && postData['SubTaskId'] == undefined) {
             res.status(errorCodes.BAD_REQUEST.Value);
             res.json({
                 "status": errorCodes.BAD_REQUEST.Text,
-                "message": "UserId required",
+                "message": "SubTaskId required",
                 "data": null
             });
         }
         else {
-
             sql.connect(config.db).then(pool => {
                 const transaction = new sql.Transaction(pool)
                 transaction.begin(err => {
@@ -248,9 +239,9 @@ exports.deleteUser = function (req, res) {
                         rolledBack = true
                     });
                     const request = new sql.Request(transaction);
-                    request.input('UserId', sql.BigInt, postData.UserId)
-                        .input('ModifyBy', sql.BigInt, postData.ModifiedBy)
-                        .execute('[dbo].[Proc_UsersDelete]', (nerr, recordsets, returnValue) => {
+                    request.input('SubTaskId', sql.BigInt, postData.SubTaskId)
+                        .input('ModifiedBy', sql.BigInt, postData.ModifiedBy)
+                        .execute('[dbo].[Proc_ServicesSubTaskMasterDelete]', (nerr, recordsets, returnValue) => {
                             if (nerr) {
                                 transaction.rollback(err => {
                                     sql.close();
@@ -321,118 +312,18 @@ exports.deleteUser = function (req, res) {
     }
 }
 
-//Block User
-exports.blockUser = function (req, res) {
-    errorCodes = errors.errorCodes
-    var postData = req.body;
-    try {
-
-        if (postData == undefined) {
-            res.status(errorCodes.BAD_REQUEST.Value);
-            res.json({
-                "status": errorCodes.BAD_REQUEST.Text,
-                "message": "",
-                "data": null
-            });
-        }
-        else if (postData != undefined && postData['UserId'] == undefined) {
-            res.status(errorCodes.BAD_REQUEST.Value);
-            res.json({
-                "status": errorCodes.BAD_REQUEST.Text,
-                "message": "UserId required",
-                "data": null
-            });
-        }
-        else {
-            sql.connect(config.db).then(pool => {
-                const transaction = new sql.Transaction(pool)
-                transaction.begin(err => {
-                    let rolledBack = false
-                    transaction.on('rollback', aborted => {
-                        // emited with aborted === true  
-                        rolledBack = true
-                    });
-                    const request = new sql.Request(transaction);
-                    request.input('UserId', sql.BigInt, postData.UserId)
-                        .input('ModifyBy', sql.BigInt, postData.ModifiedBy)
-                        .execute('[dbo].[Proc_UsersBlock]', (nerr, recordsets, returnValue) => {
-                            if (nerr) {
-                                transaction.rollback(err => {
-                                    sql.close();
-                                    res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
-                                    res.json({
-                                        "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
-                                        "message": nerr.message,
-                                        "data": null
-                                    });
-                                });
-                            }
-                            else {
-                                transaction.commit(err => {
-                                    if (err) {
-                                        if (!rolledBack) {
-                                            transaction.rollback(err => {
-                                                sql.close();
-                                                res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
-                                                res.json({
-                                                    "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
-                                                    "message": err.message,
-                                                    "data": null
-                                                });
-                                            });
-                                        }
-                                    } else {
-                                        sql.close();
-                                        res.status(errorCodes.SUCCESS.Value);
-                                        res.json({
-                                            "status": errorCodes.SUCCESS.Text,
-                                            "message": "Blocked successfully",
-                                            "data": null
-                                        });
-                                    }
-                                });
-                            }
-
-                        });
-                });
-            }).catch(err => {
-                sql.close();
-                res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
-                res.json({
-                    "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
-                    "message": err.message,
-                    "data": null
-                });
-            });
-            sql.on('error', err => {
-                sql.close();
-                res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
-                res.json({
-                    "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
-                    "message": err.message,
-                    "data": null
-                });
-            });
-        }
-    } catch (err) {
-        res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
-        res.json({
-            "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
-            "message": err.message,
-            "data": null
-        });
-    }
-}
 
 //Select User(s)
-exports.getUsers = function (req, res) {
+exports.getSubTaskMaster = function (req, res) {
     errorCodes = errors.errorCodes
     try {
-        var UserId = req.query['UserId'];
+        var SubtaskId = req.query['SubTaskId'];
+        var ServiceId = req.query['ServiceId'];
         sql.connect(config.db).then(pool => {
             return pool.request()
-                .input('UserId', sql.BigInt, UserId)
-                .execute('[dbo].[Proc_UsersSelect]')
+                .input('SubtaskId', sql.BigInt, SubtaskId)
+                .input('ServiceId', sql.BigInt, ServiceId)
+                .execute('[dbo].[Proc_ServicesSubTaskMasterSelect]')
         }).then(result => {
             sql.close();
             res.status(errorCodes.SUCCESS.Value);
