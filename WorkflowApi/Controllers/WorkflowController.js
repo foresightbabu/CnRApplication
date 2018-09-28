@@ -3,7 +3,7 @@ var sql = require("mssql");
 var errors = require('../Common/errorCodes');
 
 // Insert User
-exports.saveSubTaskMaster = function (req, res) {
+exports.saveWorkflow = function (req, res) {
     errorCodes = errors.errorCodes
     var postData = req.body;
     try {
@@ -26,12 +26,12 @@ exports.saveSubTaskMaster = function (req, res) {
                     rolledBack = true
                 });
                 const request = new sql.Request(transaction);
-                request.input('WorkflowId', sql.BigInt, postData.WorkflowId)
-                    .input('TaskName', sql.NVarChar, postData.TaskName)
+                request.input('ServiceId', sql.BigInt, postData.ServiceId)
+                    .input('WorkflowName', sql.NVarChar, postData.WorkflowName)
                     .input('Description', sql.NVarChar, postData.Description)
                     .input('CreatedBy', sql.BigInt, postData.CreatedBy)
-                    .output('SubTaskId', sql.BigInt)
-                    .execute('[dbo].[Proc_ServicesSubTaskMasterInsert]', (nerr, recordsets, returnValue) => {
+                    .output('WorkflowId', sql.BigInt)
+                    .execute('[dbo].[Proc_WorkflowInsert]', (nerr, recordsets, returnValue) => {
                         if (nerr) {
                             transaction.rollback(err => {
                                 sql.close();
@@ -63,7 +63,7 @@ exports.saveSubTaskMaster = function (req, res) {
                                     res.json({
                                         "status": errorCodes.SUCCESS.Text,
                                         "message": "",
-                                        "data": { SubTaskId: recordsets ? recordsets['output']['SubTaskId'] : null }
+                                        "data": { WorkflowId: recordsets ? recordsets['output']['WorkflowId'] : null }
                                     });
                                 }
                             });
@@ -101,7 +101,7 @@ exports.saveSubTaskMaster = function (req, res) {
 }
 
 // Update User
-exports.updateSubTaskMaster = function (req, res) {
+exports.updateWorkflow = function (req, res) {
     errorCodes = errors.errorCodes
     var postData = req.body;
     try {
@@ -114,11 +114,11 @@ exports.updateSubTaskMaster = function (req, res) {
                 "data": null
             });
         }
-        else if (postData != undefined && postData['SubTaskId'] == undefined) {
+        else if (postData != undefined && postData['WorkflowId'] == undefined) {
             res.status(errorCodes.BAD_REQUEST.Value);
             res.json({
                 "status": errorCodes.BAD_REQUEST.Text,
-                "message": "SubTaskId required",
+                "message": "WorkflowId required",
                 "data": null
             });
         }
@@ -132,12 +132,12 @@ exports.updateSubTaskMaster = function (req, res) {
                         rolledBack = true
                     });
                     const request = new sql.Request(transaction);
-                    request.input('SubTaskId', sql.BigInt, postData.SubTaskId)
-                        .input('WorkflowId', sql.BigInt, postData.WorkflowId)
-                        .input('TaskName', sql.NVarChar, postData.TaskName)
+                    request.input('WorkflowId', sql.BigInt, postData.WorkflowId)
+                        .input('ServiceId', sql.BigInt, postData.ServiceId)
+                        .input('WorkflowName', sql.NVarChar, postData.WorkflowName)
                         .input('Description', sql.NVarChar, postData.Description)
                         .input('ModifiedBy', sql.BigInt, postData.ModifiedBy)
-                        .execute('[dbo].[Proc_ServicesSubTaskMasterUpdate]', (nerr, recordsets, returnValue) => {
+                        .execute('[dbo].[Proc_WorkflowUpdate]', (nerr, recordsets, returnValue) => {
                             if (nerr) {
                                 transaction.rollback(err => {
                                     sql.close();
@@ -168,7 +168,7 @@ exports.updateSubTaskMaster = function (req, res) {
                                         res.status(errorCodes.SUCCESS.Value);
                                         res.json({
                                             "status": errorCodes.SUCCESS.Text,
-                                            "message": "Subtask updated successfully",
+                                            "message": "Workflow updated successfully",
                                             "data": null
                                         });
                                     }
@@ -208,7 +208,7 @@ exports.updateSubTaskMaster = function (req, res) {
 }
 
 //Delete User
-exports.deleteSubTaskMaster = function (req, res) {
+exports.deleteWorkflow = function (req, res) {
     errorCodes = errors.errorCodes
     var postData = req.body;
     try {
@@ -221,11 +221,11 @@ exports.deleteSubTaskMaster = function (req, res) {
                 "data": null
             });
         }
-        else if (postData != undefined && postData['SubTaskId'] == undefined) {
+        else if (postData != undefined && postData['WorkflowId'] == undefined) {
             res.status(errorCodes.BAD_REQUEST.Value);
             res.json({
                 "status": errorCodes.BAD_REQUEST.Text,
-                "message": "SubTaskId required",
+                "message": "WorkflowId required",
                 "data": null
             });
         }
@@ -239,9 +239,9 @@ exports.deleteSubTaskMaster = function (req, res) {
                         rolledBack = true
                     });
                     const request = new sql.Request(transaction);
-                    request.input('SubTaskId', sql.BigInt, postData.SubTaskId)
+                    request.input('WorkflowId', sql.BigInt, postData.WorkflowId)
                         .input('ModifiedBy', sql.BigInt, postData.ModifiedBy)
-                        .execute('[dbo].[Proc_ServicesSubTaskMasterDelete]', (nerr, recordsets, returnValue) => {
+                        .execute('[dbo].[Proc_WorkflowDelete]', (nerr, recordsets, returnValue) => {
                             if (nerr) {
                                 transaction.rollback(err => {
                                     sql.close();
@@ -314,16 +314,16 @@ exports.deleteSubTaskMaster = function (req, res) {
 
 
 //Select User(s)
-exports.getSubTaskMaster = function (req, res) {
+exports.getWorkflow = function (req, res) {
     errorCodes = errors.errorCodes
     try {
-        var SubtaskId = req.query['SubTaskId'];
+        var ServiceId = req.query['ServiceId'];
         var WorkflowId = req.query['WorkflowId'];
         sql.connect(config.db).then(pool => {
             return pool.request()
-                .input('SubtaskId', sql.BigInt, SubtaskId)
                 .input('WorkflowId', sql.BigInt, WorkflowId)
-                .execute('[dbo].[Proc_ServicesSubTaskMasterSelect]')
+                .input('ServiceId', sql.BigInt, ServiceId)
+                .execute('[dbo].[Proc_WorkflowSelect]')
         }).then(result => {
             sql.close();
             res.status(errorCodes.SUCCESS.Value);
