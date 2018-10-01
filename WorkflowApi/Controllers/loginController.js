@@ -18,7 +18,7 @@ exports.validateLogin = function (req, res) {
             return pool.request()
                 .input('Username', sql.NVarChar, postData.Username)
                 .input('Password', sql.NVarChar, postData.Password)
-                .execute('[dbo].[Proc_UsersValidatuoin]')
+                .execute('[dbo].[Proc_UsersValidation]')
         }).then(result => {
             sql.close();
             if (result.recordset.length > 0) {

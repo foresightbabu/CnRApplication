@@ -7,6 +7,7 @@ var userController = require('./Controllers/UserController');
 var serviceMasterController = require('./Controllers/ServiceMasterController');
 var workflowController = require('./Controllers/WorkflowController');
 var subTaskController = require('./Controllers/SubTaskController');
+var clientServicesController = require('./Controllers/ClientServicesController');
 
 
 // Login Routes //
@@ -44,6 +45,13 @@ router.post('/subtask', subTaskController.saveSubTaskMaster);
 router.put('/subtask', subTaskController.updateSubTaskMaster);
 router.delete('/subtask', subTaskController.deleteSubTaskMaster);
 router.get('/subtask', subTaskController.getSubTaskMaster);
+
+
+//Client Services Routes //
+router.post('/client/createservies', clientServicesController.saveClientServices);
+
+
+
 
 // Export Router //
 module.exports = router;

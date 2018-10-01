@@ -22,7 +22,7 @@ exports.saveUser = function (req, res) {
             transaction.begin(err => {
                 let rolledBack = false
                 transaction.on('rollback', aborted => {
-                    // emited with aborted === true  
+                    // emited with aborted === true
                     rolledBack = true
                 });
                 const request = new sql.Request(transaction);

@@ -11,6 +11,10 @@ app.locals.errors = errors;
 app.use(cors());
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+app.use((req, res, next) => {
+    console.log(`${req.path} - ${req.statusCode}`);
+    next();
+})
 
 require('events').EventEmitter.defaultMaxListeners = 100;
 
