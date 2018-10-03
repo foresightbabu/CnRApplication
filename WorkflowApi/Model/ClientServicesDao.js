@@ -29,25 +29,28 @@ exports.saveClientServices = function (postData) {
                                     if (postData['FormsInputValues']) {
                                         try {
                                             insertFormInputValues(postData, transaction, recordsets['output']['ClientServiceId']).then(result => {
-                                                transaction.commit(err => {
-                                                    if (err) {
+                                                transaction.commit(cerr => {
+                                                    if (cerr) {
                                                         if (!rolledBack) {
                                                             transaction.rollback(err => {
-                                                                closeConnectionAndReject(sql, reject, err);
+
+                                                                closeConnectionAndReject(sql, reject, cerr);
                                                             });
                                                         }
                                                     } else {
                                                         closeConnectionAndResolve(sql, resolve, result);
                                                     }
                                                 });
-                                            }).catch(error => {
+                                            }).catch(nerror => {
                                                 transaction.rollback(err => {
-                                                    closeConnectionAndReject(sql, reject, error);
+                                                    console.log(nerror, "error here");
+                                                    closeConnectionAndReject(sql, reject, nerror);
                                                 });
                                             });
                                         }
                                         catch (error) {
                                             transaction.rollback(err => {
+                                                console.log(error, "error1");
                                                 closeConnectionAndReject(sql, reject, error);
                                             });
                                         }
@@ -67,9 +70,10 @@ exports.saveClientServices = function (postData) {
 }
 
 function closeConnectionAndReject(sql, reject, error) {
-    console.log(sql, reject, error);
+    //console.log(error);
     sql.close();
     reject(error);
+
 }
 
 function closeConnectionAndResolve(sql, resolve, data) {
@@ -80,6 +84,10 @@ function closeConnectionAndResolve(sql, resolve, data) {
 
 function insertFormInputValues(postData, transaction, ClientServiceId) {
     return new Promise((resolve, reject) => {
+        if (postData['FormsInputValues']) {
+            reject();
+        }
+        let iserror = false;
         postData.FormsInputValues.forEach(inputValues => {
             let request = new sql.Request(transaction);
             request.input('ClientId', sql.BigInt, inputValues.ClientId)
@@ -90,13 +98,17 @@ function insertFormInputValues(postData, transaction, ClientServiceId) {
                 .input('CreatedBy', sql.BigInt, inputValues.CreatedBy)
                 .output('ClientServiceId', sql.BigInt)
                 .execute('[dbo].[Proc_ClientFormsInputValuesInsert]', (nerr, recordsets, returnValue) => {
-                    if (nerr) {
-                        reject();
-                    } else {
-                        resolve();
+                    if (nerr != undefined) {
+                        iserror = true;
                     }
                 });
         });
+        if (iserror) {
+            reject()
+        }
+        else {
+            resolve();
+        }
 
     });
 }

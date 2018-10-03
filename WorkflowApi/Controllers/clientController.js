@@ -7,7 +7,6 @@ exports.saveClient = function (req, res) {
     errorCodes = errors.errorCodes
     var postData = req.body;
     try {
-
         if (postData == undefined) {
             res.status(errorCodes.BAD_REQUEST.Value);
             res.json({
@@ -84,15 +83,6 @@ exports.saveClient = function (req, res) {
                 "data": null
             });
         });
-        sql.on('error', err => {
-            sql.close();
-            res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
-            res.json({
-                "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
-                "message": err.message,
-                "data": null
-            });
-        });
 
     } catch (err) {
         res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
@@ -130,16 +120,6 @@ exports.getClients = function (req, res) {
                 "data": null
             });
         });
-        sql.on('error', err => {
-            sql.close();
-            res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
-            res.json({
-                "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
-                "message": err.message,
-                "data": null
-            });
-        });
-
     } catch (err) {
         res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
         res.json({
@@ -242,15 +222,6 @@ exports.updateClient = function (req, res) {
                     "data": null
                 });
             });
-            sql.on('error', err => {
-                sql.close();
-                res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
-                res.json({
-                    "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
-                    "message": err.message,
-                    "data": null
-                });
-            });
         }
 
     } catch (err) {
@@ -278,76 +249,77 @@ exports.deleteClient = function (req, res) {
                 "data": null
             });
         }
+        else if (postData["ClientId"] == undefined) {
+            res.status(errorCodes.BAD_REQUEST.Value);
+            res.json({
+                "status": errorCodes.BAD_REQUEST.Text,
+                "message": "ClientId required",
+                "data": null
+            });
+        }
+        else {
 
-        sql.connect(config.db).then(pool => {
-            const transaction = new sql.Transaction(pool)
-            transaction.begin(err => {
-                let rolledBack = false
-                transaction.on('rollback', aborted => {
-                    // emited with aborted === true  
-                    rolledBack = true
-                });
-                const request = new sql.Request(transaction);
-                request.input('ClientId', sql.BigInt, postData.ClientId)
-                    .input('ModifiedBy', sql.BigInt, postData.ModifiedBy)
-                    .execute('[dbo].[Proc_ClientsDelete]', (nerr, recordsets, returnValue) => {
-                        if (nerr) {
-                            transaction.rollback(err => {
-                                sql.close();
-                                res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
-                                res.json({
-                                    "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
-                                    "message": nerr.message,
-                                    "data": null
-                                });
-                            });
-                        }
-                        else {
-                            transaction.commit(err => {
-                                if (err) {
-                                    if (!rolledBack) {
-                                        transaction.rollback(err => {
-                                            sql.close();
-                                            res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
-                                            res.json({
-                                                "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
-                                                "message": err.message,
-                                                "data": null
-                                            });
-                                        });
-                                    }
-                                } else {
+            sql.connect(config.db).then(pool => {
+                const transaction = new sql.Transaction(pool)
+                transaction.begin(err => {
+                    let rolledBack = false
+                    transaction.on('rollback', aborted => {
+                        // emited with aborted === true  
+                        rolledBack = true
+                    });
+                    const request = new sql.Request(transaction);
+                    request.input('ClientId', sql.BigInt, postData.ClientId)
+                        .input('ModifiedBy', sql.BigInt, postData.ModifiedBy)
+                        .execute('[dbo].[Proc_ClientsDelete]', (nerr, recordsets, returnValue) => {
+                            if (nerr) {
+                                transaction.rollback(err => {
                                     sql.close();
-                                    res.status(errorCodes.SUCCESS.Value);
+                                    res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
                                     res.json({
-                                        "status": errorCodes.SUCCESS.Text,
-                                        "message": "Deleted successfully",
+                                        "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
+                                        "message": nerr.message,
                                         "data": null
                                     });
-                                }
-                            });
-                        }
+                                });
+                            }
+                            else {
+                                transaction.commit(err => {
+                                    if (err) {
+                                        if (!rolledBack) {
+                                            transaction.rollback(err => {
+                                                sql.close();
+                                                res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
+                                                res.json({
+                                                    "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
+                                                    "message": err.message,
+                                                    "data": null
+                                                });
+                                            });
+                                        }
+                                    } else {
+                                        sql.close();
+                                        res.status(errorCodes.SUCCESS.Value);
+                                        res.json({
+                                            "status": errorCodes.SUCCESS.Text,
+                                            "message": "Deleted successfully",
+                                            "data": null
+                                        });
+                                    }
+                                });
+                            }
 
-                    });
+                        });
+                });
+            }).catch(err => {
+                sql.close();
+                res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
+                res.json({
+                    "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
+                    "message": err.message,
+                    "data": null
+                });
             });
-        }).catch(err => {
-            sql.close();
-            res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
-            res.json({
-                "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
-                "message": err.message,
-                "data": null
-            });
-        });
-        sql.on('error', err => {
-            sql.close();
-            res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
-            res.json({
-                "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
-                "message": err.message,
-                "data": null
-            });
-        });
+        }
 
     } catch (err) {
         res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
@@ -434,16 +406,6 @@ exports.blockClient = function (req, res) {
                 "data": null
             });
         });
-        sql.on('error', err => {
-            sql.close();
-            res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
-            res.json({
-                "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
-                "message": err.message,
-                "data": null
-            });
-        });
-
     } catch (err) {
         res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
         res.json({
@@ -453,3 +415,15 @@ exports.blockClient = function (req, res) {
         });
     }
 }
+
+
+sql.on('error', err => {
+    if (sql)
+        sql.close();
+    res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
+    res.json({
+        "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
+        "message": err.message,
+        "data": null
+    });
+});
