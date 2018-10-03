@@ -18,7 +18,6 @@ exports.saveClientServices = function (req, res) {
         else {
 
             ClientServicesRepo.saveClientServices(postData).then(result => {
-                console.log("here");
                 res.status(errorCodes.SUCCESS.Value);
                 res.json({
                     "status": errorCodes.SUCCESS.Text,

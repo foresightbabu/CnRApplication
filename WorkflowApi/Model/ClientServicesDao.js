@@ -33,24 +33,21 @@ exports.saveClientServices = function (postData) {
                                                     if (cerr) {
                                                         if (!rolledBack) {
                                                             transaction.rollback(err => {
-
                                                                 closeConnectionAndReject(sql, reject, cerr);
                                                             });
                                                         }
                                                     } else {
-                                                        closeConnectionAndResolve(sql, resolve, result);
+                                                        closeConnectionAndResolve(sql, resolve, recordsets['output']['ClientServiceId']);
                                                     }
                                                 });
                                             }).catch(nerror => {
                                                 transaction.rollback(err => {
-                                                    console.log(nerror, "error here");
                                                     closeConnectionAndReject(sql, reject, nerror);
                                                 });
                                             });
                                         }
                                         catch (error) {
                                             transaction.rollback(err => {
-                                                console.log(error, "error1");
                                                 closeConnectionAndReject(sql, reject, error);
                                             });
                                         }
@@ -77,37 +74,32 @@ function closeConnectionAndReject(sql, reject, error) {
 }
 
 function closeConnectionAndResolve(sql, resolve, data) {
-    console.log(sql, resolve, data);
     sql.close();
     resolve(data);
 }
 
 function insertFormInputValues(postData, transaction, ClientServiceId) {
     return new Promise((resolve, reject) => {
-        if (postData['FormsInputValues']) {
-            reject();
-        }
-        let iserror = false;
-        postData.FormsInputValues.forEach(inputValues => {
-            let request = new sql.Request(transaction);
-            request.input('ClientId', sql.BigInt, inputValues.ClientId)
-                .input('ClientServicesId', sql.BigInt, ClientServiceId)
-                .input('FormControlsId', sql.BigInt, inputValues.FormControlsId)
-                .input('InputValue', sql.NVarChar, inputValues.InputValue)
-                .input('InputValueType', sql.NVarChar, inputValues.InputValueType)
-                .input('CreatedBy', sql.BigInt, inputValues.CreatedBy)
-                .output('ClientServiceId', sql.BigInt)
-                .execute('[dbo].[Proc_ClientFormsInputValuesInsert]', (nerr, recordsets, returnValue) => {
-                    if (nerr != undefined) {
-                        iserror = true;
-                    }
-                });
-        });
-        if (iserror) {
-            reject()
+        if (postData['FormsInputValues'] == undefined) {
+            reject("no data found");
         }
         else {
-            resolve();
+            postData.FormsInputValues.forEach(inputValues => {
+                let request = new sql.Request(transaction);
+                request.input('ClientId', sql.BigInt, inputValues.ClientId)
+                    .input('ClientServicesId', sql.BigInt, ClientServiceId)
+                    .input('FormControlsId', sql.BigInt, inputValues.FormControlsId)
+                    .input('InputValue', sql.NVarChar, inputValues.InputValue)
+                    .input('InputValueType', sql.NVarChar, inputValues.InputValueType)
+                    .input('CreatedBy', sql.BigInt, inputValues.CreatedBy)
+                    .output('FormsInputValueId', sql.BigInt)
+                    .execute('[dbo].[Proc_ClientFormsInputValuesInsert]', (nerr, recordsets, returnValue) => {
+                        if (nerr != undefined) {
+                            reject(nerr);
+                        }
+                    });
+            });
+            resolve(true);
         }
 
     });
