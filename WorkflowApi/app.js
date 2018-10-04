@@ -10,13 +10,12 @@ app.locals.errors = errors;
 
 app.use(cors());
 
-
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
 if (process.env.NODENV == "DEV") {
     app.use((req, res, next) => {
-        console.log(`${process.env.NODENV} ${req.path} - ${req.statusCode}`);
+        console.log(`${process.env.NODENV} : ${req.path} - ${req.statusCode}`);
         next();
     });
 
@@ -27,12 +26,26 @@ if (process.env.NODENV == "DEV") {
     });
 }
 
-require('events').EventEmitter.defaultMaxListeners = 5;
+
+if (process.env.NODENV == "DEV") {
+    require('events').EventEmitter.defaultMaxListeners = 100;
+}
+
+if (process.env.NODENV == "PROD") {
+    require('events').EventEmitter.defaultMaxListeners = 0;
+}
 
 // Configure router //
 app.use(router);
 
 //Configure app to listen in the port. Port number is configurable in appConfig.js
-app.listen(config.app.port, function () {
-    console.log(`Example app listening on port ${config.app.port}!`);
-});
+if (process.env.NODENV == "DEV") {
+    app.listen(config.app.dev.port, function () {
+        console.log(`Example app listening on port ${config.app.port}!`);
+    });
+}
+if (process.env.NODENV == "PROD") {
+    app.listen(process.env.PORT || config.app.prod.port, function () {
+        console.log(`Example app listening on port ${process.env.PORT || config.app.prod.port}!`);
+    });
+}

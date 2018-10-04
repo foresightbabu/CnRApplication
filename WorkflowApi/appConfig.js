@@ -1,7 +1,13 @@
 module.exports = {
     app: {
-        port: 3000,
-        domain: "http://localhost"
+        dev: {
+            port: 3000,
+            domain: "http://localhost"
+        },
+        prod: {
+            port: 1405,
+            domain: "http://localhost"
+        }
     },
     db: {
         server: 'DESKTOP-P579ABQ',
