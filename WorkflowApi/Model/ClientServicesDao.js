@@ -19,52 +19,23 @@ exports.saveClientServices = function (postData) {
                     .output('ClientServiceId', sql.BigInt)
                     .execute('[dbo].[Proc_ClientServicesInsert]', (nerr, recordsets, returnValue) => {
                         if (nerr) {
-                            transaction.rollback(err => {
-                                closeConnectionAndReject(sql, reject, nerr);
-                            });
+                            if (!rolledBack) {
+                                transaction.rollback(err => {
+                                    closeConnectionAndReject(sql, reject, nerr);
+                                });
+                            }
                         }
                         else {
-                            if (recordsets['output']) {
-                                if (recordsets['output']['ClientServiceId'] != "" && recordsets['output']['ClientServiceId'] != undefined) {
-                                    if (postData['FormsInputValues']) {
-                                        try {
-                                            insertFormInputValues(postData, transaction, recordsets['output']['ClientServiceId']).then(result => {
-                                                transaction.commit(cerr => {
-                                                    if (cerr) {
-                                                        if (!rolledBack) {
-                                                            transaction.rollback(err => {
-                                                                closeConnectionAndReject(sql, reject, cerr);
-                                                            });
-                                                        }
-                                                    } else {
-                                                        closeConnectionAndResolve(sql, resolve, recordsets['output']['ClientServiceId']);
-                                                    }
-                                                });
-                                            }).catch(nerror => {
-                                                transaction.rollback(err => {
-                                                    closeConnectionAndReject(sql, reject, nerror);
-                                                });
-                                            });
-                                        }
-                                        catch (error) {
-                                            transaction.rollback(err => {
-                                                closeConnectionAndReject(sql, reject, error);
-                                            });
-                                        }
-                                    }
-                                }
-                            }
+                            closeConnectionAndResolve(sql, resolve, recordsets['output']['ClientServiceId']);
                         }
                     });
             });
         }).catch(err => {
             closeConnectionAndReject(sql, reject, err);
         });
-        sql.on('error', err => {
-            closeConnectionAndReject(sql, reject, err);
-        });
     });
 }
+
 
 function closeConnectionAndReject(sql, reject, error) {
     //console.log(error);
@@ -78,29 +49,80 @@ function closeConnectionAndResolve(sql, resolve, data) {
     resolve(data);
 }
 
-function insertFormInputValues(postData, transaction, ClientServiceId) {
+exports.saveFormInputValues = function (postData) {
+    let FormsInputValueIds = [];
     return new Promise((resolve, reject) => {
         if (postData['FormsInputValues'] == undefined) {
             reject("no data found");
         }
         else {
-            postData.FormsInputValues.forEach(inputValues => {
-                let request = new sql.Request(transaction);
-                request.input('ClientId', sql.BigInt, inputValues.ClientId)
-                    .input('ClientServicesId', sql.BigInt, ClientServiceId)
-                    .input('FormControlsId', sql.BigInt, inputValues.FormControlsId)
-                    .input('InputValue', sql.NVarChar, inputValues.InputValue)
-                    .input('InputValueType', sql.NVarChar, inputValues.InputValueType)
-                    .input('CreatedBy', sql.BigInt, inputValues.CreatedBy)
-                    .output('FormsInputValueId', sql.BigInt)
-                    .execute('[dbo].[Proc_ClientFormsInputValuesInsert]', (nerr, recordsets, returnValue) => {
-                        if (nerr != undefined) {
-                            reject(nerr);
-                        }
+            sql.connect(config.db).then(pool => {
+                const transaction = new sql.Transaction(pool)
+                transaction.begin(err => {
+                    let rolledBack = false
+                    transaction.on('rollback', aborted => {
+                        rolledBack = true
                     });
-            });
-            resolve(true);
-        }
+                    postData['FormsInputValues'].forEach(inputValues => {
+                        const request = new sql.Request(transaction);
+                        request.input('ClientId', sql.BigInt, inputValues.ClientId)
+                            .input('ClientServicesId', sql.BigInt, ClientServiceId)
+                            .input('FormControlsId', sql.BigInt, inputValues.FormControlsId)
+                            .input('InputValue', sql.NVarChar, inputValues.InputValue)
+                            .input('InputValueType', sql.NVarChar, inputValues.InputValueType)
+                            .input('CreatedBy', sql.BigInt, inputValues.CreatedBy)
+                            .output('FormsInputValueId', sql.BigInt)
+                            .execute('[dbo].[Proc_ClientFormsInputValuesInsert]', (nerr, recordsets, returnValue) => {
+                                if (nerr) {
+                                    if (!rolledBack) {
+                                        transaction.rollback(err => {
+                                            closeConnectionAndReject(sql, reject, nerr);
+                                        });
+                                    }
+                                }
+                                else {
+                                    FormsInputValueIds.push(recordsets['output']['FormsInputValueId']);
+                                }
+                            });
 
+                    });
+                });
+            }).catch(err => {
+                closeConnectionAndReject(sql, reject, err);
+            });
+
+        }
     });
 }
+
+sql.on('error', err => {
+    closeConnectionAndReject(sql, reject, err);
+});
+
+
+// function insertFormInputValues(postData, transaction, ClientServiceId) {
+//     return new Promise((resolve, reject) => {
+//         if (postData['FormsInputValues'] == undefined) {
+//             reject("no data found");
+//         }
+//         else {
+//             postData.FormsInputValues.forEach(inputValues => {
+//                 let request = new sql.Request(transaction);
+//                 request.input('ClientId', sql.BigInt, inputValues.ClientId)
+//                     .input('ClientServicesId', sql.BigInt, ClientServiceId)
+//                     .input('FormControlsId', sql.BigInt, inputValues.FormControlsId)
+//                     .input('InputValue', sql.NVarChar, inputValues.InputValue)
+//                     .input('InputValueType', sql.NVarChar, inputValues.InputValueType)
+//                     .input('CreatedBy', sql.BigInt, inputValues.CreatedBy)
+//                     .output('FormsInputValueId', sql.BigInt)
+//                     .execute('[dbo].[Proc_ClientFormsInputValuesInsert]', (nerr, recordsets, returnValue) => {
+//                         if (nerr != undefined) {
+//                             reject(nerr);
+//                         }
+//                     });
+//             });
+//             resolve(true);
+//         }
+
+//     });
+// }
