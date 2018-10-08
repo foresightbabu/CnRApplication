@@ -23,12 +23,7 @@ const webpackConfig = merge(baseWebpackConfig, {
     new webpack.DefinePlugin({
       'process.env': require('../config/test.env')
     })
-  ],
-    externals: {
-        config: JSON.stringify({
-            apiUrl: 'http://192.168.4.186:3000'
-        })
-    }
+  ]
 })
 
 // no need for app entry during tests

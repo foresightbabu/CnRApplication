@@ -20,7 +20,7 @@
                             {{userName}}
                         </template>
                         <b-dropdown-item href="#">{{$ml.with('VueJS').get('common.Profile')}}</b-dropdown-item>
-                        <b-dropdown-item href="#">{{$ml.with('VueJS').get('common.Signout')}}</b-dropdown-item>
+                        <b-dropdown-item v-on:click="logout">{{$ml.with('VueJS').get('common.Signout')}}</b-dropdown-item>
                     </b-nav-item-dropdown>
                 </b-navbar-nav>
             </b-collapse>
@@ -46,12 +46,21 @@
 </template>
 
 <script>
+import Vue from 'vue';
+import VueSession from 'vue-session';
+Vue.use(VueSession)
 export default {
   name: "AdminMenu",
   data() {
     return {
       userName: "Administrator"
     };
+  },
+    methods: {
+    logout: function () {
+      this.$session.destroy()
+       this.$router.push('/login');
+    }
   }
 };
 </script>

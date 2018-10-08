@@ -5,7 +5,6 @@
                 <a href="index.html" class="logo logo-lg">  
                   <img class="img-responsive" src="../../assets/logo.png" alt="Chandran and Raman" width="200" height="50"> </a>
             </div>
-
              <form @submit.prevent="handleSubmit" class="form-horizontal m-t-20">
             <div class="form-group">
                 <label for="username">Username</label>
@@ -39,41 +38,60 @@
                             password?</a>
                     </div>                 
                 </div>
+                <div v-if="error" class="alert alert-danger">{{error}}</div>
         </form>
         </div>
     </div>    
 </template>
 <script>
-import { mapState, mapActions } from 'vuex'
-
+import Vue from 'vue';
+import axios from 'axios';
+import { apiUrl } from '../../../vue.config';
+import VueSession from 'vue-session';
+Vue.use(VueSession)
 export default {
     data () {
         return {
             username: '',
             password: '',
-            submitted: false
+            submitted: false,
+            error: null
         }
     },
-    computed: {
-        ...mapState('account', ['status'])
-    },
-    created () {
-        // reset login status
-        this.logout();
-    },
-    methods: {
-        ...mapActions('account', ['login', 'logout']),
-        handleSubmit (e) {
-            this.submitted = true;
-            const { username, password } = this;
-            if (username && password) {
-                this.login({ username, password })
+   
+   methods: {
+    handleSubmit(e) {
+      this.submitted = true;
+      const { username, password } = this;
+      // stop here if form is invalid
+      if (!(username && password)) {
+        return;
+      }
+ axios({
+        method: 'post',
+        url: `${apiUrl}/users/authenticate`,
+        data: {
+            Username: username,
+            Password: password
+        },
+
+      }).then(response => {
+             if (response.status === 200) {
+              this.$session.start()
+              this.$session.set('secret', response.data.data)
+              this.$router.push('/user');
             }
-        }
+            
+          })
+          .then(errors => {
+        console.log(errors);
+          }).catch(res => {
+       this.error = 'Username or password is incorrect';
+          })
     }
+  }
 };
 </script>
-
 <style scoped>
 body {
     background: #ecf0f1 !important;

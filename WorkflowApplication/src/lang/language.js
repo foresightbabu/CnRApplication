@@ -12,14 +12,17 @@ export default {
             Comments: "Comments"
         },
         common: {
-            Home: 'Home',
             Profile: "Profile",
             Signout: "Signout"
         },
         tasks: {
-            ModuleName : "Task",
-            CreateTasks : "Create Tasks"
-
+            TaskHeading : "Task"
+        },
+        Client: {
+            Heading : "Client"
+        },
+        User: {
+            Heading : "User Information"
         }
     },
     pt: {
@@ -34,13 +37,17 @@ export default {
             Comments: "Comentários"
         },
         common: {
-            Home: 'Casa',
             Profile: "Perfil",
             Signout: "Sair"
         },
         tasks: {
-            ModuleName : "Tarefas",
-            CreateTasks : "Criar tarefas"
+            TaskHeading : "Task"
+        },
+        Client: {
+            Heading : "Cliente"
+        },
+        User: {
+            Heading : "Informação do usuário"
         }
     }
 }

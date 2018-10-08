@@ -10,6 +10,9 @@ app.locals.errors = errors;
 
 app.use(cors());
 
+var port = process.env.PORT || 3000;
+
+
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
@@ -38,14 +41,15 @@ if (process.env.NODENV == "PROD") {
 // Configure router //
 app.use(router);
 
-//Configure app to listen in the port. Port number is configurable in appConfig.js
-if (process.env.NODENV == "DEV") {
-    app.listen(config.app.dev.port, function () {
-        console.log(`Example app listening on port ${config.app.port}!`);
-    });
-}
+
 if (process.env.NODENV == "PROD") {
-    app.listen(process.env.PORT || config.app.prod.port, function () {
-        console.log(`Example app listening on port ${process.env.PORT || config.app.prod.port}!`);
-    });
+    port = config.app.prod.port;
 }
+else if (process.env.NODENV == "DEV") {
+    port = config.app.dev.port;
+}
+// else { port = config.app.prod.port }
+//Configure app to listen in the port. Port number is configurable in appConfig.js
+app.listen(port, function () {
+    console.log(`Example app listening on port ${port}!`);
+});

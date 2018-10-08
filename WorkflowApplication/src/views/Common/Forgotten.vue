@@ -27,19 +27,9 @@
         </div>
     </div>    
 </template>
-<script>
-export default {
-  name: "Login",
-  data() {
-    return {
-    }
-  }
-}
-</script>
 
 
 <style scoped>
-
 .wrapper-page {
     margin: 7.5% auto;
     width: 360px;

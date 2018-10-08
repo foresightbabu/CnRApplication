@@ -1,11 +1,13 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import HelloWorld from '@/components/HelloWorld'
 import Layout from '../views/layout/Layout'
 import AdminTask from '../views/tasks/task'
-import ClientDashboard from '../components/ClientDashboard'
-import CreateTask from '../views/tasks/CreateTask'
 import Login from '../views/Common/Login'
 import Forgotten from '../views/Common/Forgotten'
+import ClientList from '../views/ClientMaster/List'
+import UserList from '../views/User/List'
+ 
 Vue.use(Router)
 
 export default new Router({
@@ -16,25 +18,48 @@ export default new Router({
       component: Layout,
       children: [
         {
-          path: '/Client/CreateTask',
-          name: 'CreateTask',
-          component: CreateTask
+          path: '/home',
+          name: 'HelloWorld',
+          component: HelloWorld
+        },
+        {
+          path: '/admin/tasks',
+          name: 'AdminTask',
+          component: AdminTask
         }
       ]
     },
     {
-      path: '/Client/Dashboard',
-      name: 'ClientDashboard',
-      component: ClientDashboard
+      path: '/client',
+      name: 'Layout',
+      component: Layout,
+      children: [
+        {
+          path: '/',
+          name: 'ClientList',
+          component: ClientList
+        }
+      ]
     },
-    
     {
-      path: '/Login',
-      name: 'Login',
+      path: '/user',
+      name: 'Layout',
+      component: Layout,
+      children: [
+        {
+          path: '/',
+          name: 'UserList',
+          component: UserList
+        }
+      ]
+    },
+    {
+      path: '/login',
+      name: 'login',
       component: Login
     },
     {
-      path: '/Forgotten',
+      path: '/forgotten',
       name: 'Forgotten',
       component: Forgotten
     }

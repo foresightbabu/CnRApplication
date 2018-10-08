@@ -1,6 +1,6 @@
 <template>
     <h1>
-        Layout page 
+        Layout page
     </h1>
 </template>
 <script>
