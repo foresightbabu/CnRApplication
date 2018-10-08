@@ -9,3 +9,13 @@ exports.saveClientServices = function (postData) {
         });
     });
 }
+
+exports.saveFormInputValues = function (postData) {
+    return new Promise((resolve, reject) => {
+        ClientServicesDao.saveFormInputValues(postData).then(result => {
+            resolve(result);
+        }).catch(error => {
+            reject(error);
+        });
+    });
+}

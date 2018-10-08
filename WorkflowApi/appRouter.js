@@ -1,14 +1,13 @@
 var express = require('express');
 var router = express.Router();
 
+/*Common Router for Master Controllers*/
 var loginController = require('./Controllers/LoginController');
 var clientController = require('./Controllers/ClientController');
 var userController = require('./Controllers/UserController');
 var serviceMasterController = require('./Controllers/ServiceMasterController');
 var workflowController = require('./Controllers/WorkflowController');
 var subTaskController = require('./Controllers/SubTaskController');
-var clientServicesController = require('./Controllers/ClientServicesController');
-
 
 // Login Routes //
 router.post('/users/authenticate', loginController.validateLogin);
@@ -45,13 +44,6 @@ router.post('/subtask', subTaskController.saveSubTaskMaster);
 router.put('/subtask', subTaskController.updateSubTaskMaster);
 router.delete('/subtask', subTaskController.deleteSubTaskMaster);
 router.get('/subtask', subTaskController.getSubTaskMaster);
-
-
-//Client Services Routes //
-router.post('/client/createservies', clientServicesController.saveClientServices);
-
-
-
 
 // Export Router //
 module.exports = router;

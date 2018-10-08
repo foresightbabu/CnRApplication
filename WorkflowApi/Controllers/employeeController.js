@@ -15,11 +15,12 @@ exports.getEmployees = function (req, res) {
         res.status(500);
         res.send({ error: err.message });
     });
-    sql.on('error', err => {
-        sql.close();
-        res.status(500);
-        res.send({ error: "Error while connecting to database. Message : " + err.message });
-    });
 }
+
+sql.on('error', err => {
+    sql.close();
+    res.status(500);
+    res.send({ error: "Error while connecting to database. Message : " + err.message });
+});
 
 //module.exports = employeeapp;

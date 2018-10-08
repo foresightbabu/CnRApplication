@@ -6,11 +6,16 @@ var bodyParser = require('body-parser');
 var errors = require('./Common/errorCodes');
 var cors = require('cors');
 
+
+/*Routers Starts */
+var ClientServiceRoute = require('./Routers/ClientServicesRoute');
+
+
 app.locals.errors = errors;
 
 app.use(cors());
 
-var port = process.env.PORT || 3000;
+var port = process.env.PORT || 3005;
 
 
 app.use(bodyParser.json()); // support json encoded bodies
@@ -18,7 +23,7 @@ app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
 if (process.env.NODENV == "DEV") {
     app.use((req, res, next) => {
-        console.log(`${process.env.NODENV} : ${req.path} - ${req.statusCode}`);
+        console.log(`${process.env.NODENV} : ${req.path} - ${res.statusCode}`);
         next();
     });
 
@@ -40,7 +45,7 @@ if (process.env.NODENV == "PROD") {
 
 // Configure router //
 app.use(router);
-
+app.use('/clientservice', ClientServiceRoute)
 
 if (process.env.NODENV == "PROD") {
     port = config.app.prod.port;

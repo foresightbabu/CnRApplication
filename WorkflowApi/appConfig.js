@@ -11,7 +11,7 @@ module.exports = {
     },
     db: {
         server: 'DESKTOP-P579ABQ',
-        database: 'PaperlessOffice',
+        database: 'CnRWorkflow',
         user: 'sa',
         password: 'P$$$2018$$',
         port: 1433,

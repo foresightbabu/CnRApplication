@@ -80,15 +80,6 @@ exports.saveWorkflow = function (req, res) {
                 "data": null
             });
         });
-        sql.on('error', err => {
-            sql.close();
-            res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
-            res.json({
-                "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
-                "message": err.message,
-                "data": null
-            });
-        });
 
     } catch (err) {
         res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
@@ -178,15 +169,6 @@ exports.updateWorkflow = function (req, res) {
                         });
                 });
             }).catch(err => {
-                sql.close();
-                res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
-                res.json({
-                    "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
-                    "message": err.message,
-                    "data": null
-                });
-            });
-            sql.on('error', err => {
                 sql.close();
                 res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
                 res.json({
@@ -290,15 +272,6 @@ exports.deleteWorkflow = function (req, res) {
                     "data": null
                 });
             });
-            sql.on('error', err => {
-                sql.close();
-                res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
-                res.json({
-                    "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
-                    "message": err.message,
-                    "data": null
-                });
-            });
 
         }
 
@@ -341,15 +314,6 @@ exports.getWorkflow = function (req, res) {
                 "data": null
             });
         });
-        sql.on('error', err => {
-            sql.close();
-            res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
-            res.json({
-                "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
-                "message": err.message,
-                "data": null
-            });
-        });
 
     } catch (err) {
         res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
@@ -360,3 +324,13 @@ exports.getWorkflow = function (req, res) {
         });
     }
 }
+
+sql.on('error', err => {
+    sql.close();
+    res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
+    res.json({
+        "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
+        "message": err.message,
+        "data": null
+    });
+});

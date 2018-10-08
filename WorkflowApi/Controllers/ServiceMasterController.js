@@ -80,15 +80,6 @@ exports.saveServiceMaster = function (req, res) {
                 "data": null
             });
         });
-        sql.on('error', err => {
-            sql.close();
-            res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
-            res.json({
-                "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
-                "message": err.message,
-                "data": null
-            });
-        });
 
     } catch (err) {
         res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
@@ -178,15 +169,6 @@ exports.updateServiceMaster = function (req, res) {
                         });
                 });
             }).catch(err => {
-                sql.close();
-                res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
-                res.json({
-                    "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
-                    "message": err.message,
-                    "data": null
-                });
-            });
-            sql.on('error', err => {
                 sql.close();
                 res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
                 res.json({
@@ -290,15 +272,6 @@ exports.deleteServiceMaster = function (req, res) {
                     "data": null
                 });
             });
-            sql.on('error', err => {
-                sql.close();
-                res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
-                res.json({
-                    "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
-                    "message": err.message,
-                    "data": null
-                });
-            });
 
         }
 
@@ -339,16 +312,6 @@ exports.getServiceMaster = function (req, res) {
                 "data": null
             });
         });
-        sql.on('error', err => {
-            sql.close();
-            res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
-            res.json({
-                "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
-                "message": err.message,
-                "data": null
-            });
-        });
-
     } catch (err) {
         res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
         res.json({
@@ -358,3 +321,15 @@ exports.getServiceMaster = function (req, res) {
         });
     }
 }
+
+
+
+sql.on('error', err => {
+    sql.close();
+    res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
+    res.json({
+        "status": errorCodes.INTERNAL_SERVER_ERROR.Text,
+        "message": err.message,
+        "data": null
+    });
+});
