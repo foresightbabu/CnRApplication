@@ -1,8 +1,8 @@
-var ClientServicesDao = require('../Model/ClientServicesDao');
+var ServicesFormControlsDao = require('../Model/ServicesFormControlsDao');
 
-exports.saveClientServices = function (postData) {
+exports.saveServicesFormControls = function (postData) {
     return new Promise((resolve, reject) => {
-        ClientServicesDao.saveClientServices(postData).then(result => {
+        ServicesFormControlsDao.saveServicesFormControls(postData).then(result => {
             resolve(result);
         }).catch(error => {
             reject(error)
@@ -10,9 +10,29 @@ exports.saveClientServices = function (postData) {
     });
 }
 
-exports.saveFormInputValues = function (postData) {
+exports.updateServicesFormControls = function (postData) {
     return new Promise((resolve, reject) => {
-        ClientServicesDao.saveFormInputValues(postData).then(result => {
+        ServicesFormControlsDao.updateServicesFormControls(postData).then(result => {
+            resolve(result);
+        }).catch(error => {
+            reject(error);
+        });
+    });
+}
+
+exports.deleteServicesFormControls = function (postData) {
+    return new Promise((resolve, reject) => {
+        ServicesFormControlsDao.deleteServicesFormControls(postData).then(result => {
+            resolve(result);
+        }).catch(error => {
+            reject(error);
+        });
+    });
+}
+
+exports.getServicesFormControls = function (postData) {
+    return new Promise((resolve, reject) => {
+        ServicesFormControlsDao.getServicesFormControls(postData).then(result => {
             resolve(result);
         }).catch(error => {
             reject(error);

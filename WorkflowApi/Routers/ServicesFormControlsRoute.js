@@ -4,6 +4,8 @@ var ServicesFormControlController = require('../Controllers/ServicesFormControls
 
 //Client Services Routes //
 ClientServiceRouter.post('/', ServicesFormControlController.saveServicesFormControls);
-ClientServiceRouter.put('/', ServicesFormControlController.up);
+ClientServiceRouter.put('/', ServicesFormControlController.updateServicesFormControls);
+ClientServiceRouter.delete('/', ServicesFormControlController.deleteServicesFormControls);
+ClientServiceRouter.get('/', ServicesFormControlController.getServicesFormControls);
 
 module.exports = ClientServiceRouter;

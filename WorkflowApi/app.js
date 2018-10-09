@@ -19,9 +19,23 @@ var port = process.env.PORT || 3000;
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
+
+// Configure router //
+app.use(router);
+app.use('/clientservice', ClientServiceRoute)
+app.use('/ServicesFormControls', ServicesFormControlsRoute)
+
+if (process.env.NODENV == "DEV") {
+    require('events').EventEmitter.defaultMaxListeners = 100;
+}
+
+if (process.env.NODENV == "PROD") {
+    require('events').EventEmitter.defaultMaxListeners = 0;
+}
+
 if (process.env.NODENV == "DEV") {
     app.use((req, res, next) => {
-        console.log(`${process.env.NODENV} : ${req.path} - ${res.statusCode}`);
+        console.log(`${process.env.NODENV} : ${req.method} : ${req.path} - ${res.statusCode}`);
         next();
     });
 
@@ -32,21 +46,7 @@ if (process.env.NODENV == "DEV") {
     });
 }
 
-
-if (process.env.NODENV == "DEV") {
-    require('events').EventEmitter.defaultMaxListeners = 100;
-}
-
-if (process.env.NODENV == "PROD") {
-    require('events').EventEmitter.defaultMaxListeners = 0;
-}
-
-// Configure router //
-app.use(router);
-app.use('/clientservice', ClientServiceRoute)
-app.use('/ServicesFormControls', ServicesFormControlsRoute)
 //Configure router end //
-
 if (process.env.NODENV == "PROD") {
     port = config.app.prod.port;
 }
