@@ -24,10 +24,10 @@ module.exports = {
             port: 1405,
             domain: "http://localhost",
             db: {
-                server: 'DESKTOP-P579ABQ',
+                server: '14.192.17.223',
                 database: 'CnRWorkflow',
-                user: 'sa',
-                password: 'P$$$2018$$',
+                user: 'pocuser',
+                password: 'Paripoorna2017',
                 port: 1433,
                 pool: {
                     max: 100,
