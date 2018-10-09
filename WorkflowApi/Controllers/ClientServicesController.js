@@ -22,7 +22,7 @@ exports.saveClientServices = function (req, res) {
                 res.json({
                     "status": errorCodes.SUCCESS.Text,
                     "message": "",
-                    "data": { "ClientServiceId": result }
+                    "data": result
                 });
             }).catch(error => {
                 res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);
@@ -65,7 +65,7 @@ exports.saveFormInputValues = function (req, res) {
                 res.json({
                     "status": errorCodes.SUCCESS.Text,
                     "message": "",
-                    "data": { "FormInputValueId": result }
+                    "data": result
                 });
             }).catch(error => {
                 res.status(errorCodes.INTERNAL_SERVER_ERROR.Value);

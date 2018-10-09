@@ -1,4 +1,3 @@
-var config = require('../appConfig');
 var sql = require("mssql");
 var sqlConnection = require('../Common/SqlConnection');
 
@@ -22,7 +21,7 @@ exports.saveClientServices = function (postData) {
                         if (nerr) {
                             if (!rolledBack) {
                                 transaction.rollback(err => {
-                                    closeConnectionAndReject(sql, reject, nerr);
+                                    sqlConnection.closeConnectionAndReject(sql, reject, nerr);
                                 });
                             }
                         }
@@ -31,19 +30,19 @@ exports.saveClientServices = function (postData) {
                                 if (err) {
                                     if (!rolledBack) {
                                         transaction.rollback(err => {
-                                            closeConnectionAndReject(sql, reject, err);
+                                            sqlConnection.closeConnectionAndReject(sql, reject, err);
                                         });
                                     }
                                 }
                                 else {
-                                    closeConnectionAndResolve(sql, resolve, recordsets['output']['ClientServiceId']);
+                                    sqlConnection.closeConnectionAndResolve(sql, resolve, { ClientServiceId: recordsets['output']['ClientServiceId'] });
                                 }
                             });
                         }
                     });
             });
         }).catch(err => {
-            closeConnectionAndReject(sql, reject, err);
+            sqlConnection.closeConnectionAndReject(sql, reject, err);
         });
     });
 }
@@ -74,7 +73,7 @@ exports.saveFormInputValues = function (FormsInputValues) {
                             if (nerr) {
                                 if (!rolledBack) {
                                     transaction.rollback(err => {
-                                        closeConnectionAndReject(sql, reject, nerr);
+                                        sqlConnection.closeConnectionAndReject(sql, reject, nerr);
                                     });
                                 }
                             }
@@ -84,19 +83,19 @@ exports.saveFormInputValues = function (FormsInputValues) {
                                     if (err) {
                                         if (!rolledBack) {
                                             transaction.rollback(err => {
-                                                closeConnectionAndReject(sql, reject, err);
+                                                sqlConnection.closeConnectionAndReject(sql, reject, err);
                                             });
                                         }
                                     }
                                     else {
-                                        closeConnectionAndResolve(sql, resolve, recordsets['output']['FormsInputValueId']);
+                                        sqlConnection.closeConnectionAndResolve(sql, resolve, { FormsInputValueId: recordsets['output']['FormsInputValueId'] });
                                     }
                                 });
                             }
                         });
                 });
             }).catch(err => {
-                closeConnectionAndReject(sql, reject, err);
+                sqlConnection.closeConnectionAndReject(sql, reject, err);
             });
 
         }
@@ -104,19 +103,6 @@ exports.saveFormInputValues = function (FormsInputValues) {
 }
 
 
-function closeConnectionAndReject(sql, reject, error) {
-    //console.log(error);
-    sql.close();
-    reject(error);
-
-}
-
-function closeConnectionAndResolve(sql, resolve, data) {
-    sql.close();
-    resolve(data);
-}
-
-
 sql.on('error', err => {
-    closeConnectionAndReject(sql, reject, err);
+    sqlConnection.closeConnectionAndReject(sql, reject, err);
 });
